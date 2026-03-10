@@ -3,6 +3,12 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import Papa from "papaparse";
 
 interface CSVRow {
+  // New format columns
+  "Item No."?: string;
+  "Item Description"?: string;
+  "In Stock"?: string;
+  "Item Group"?: string;
+  // Legacy format columns
   ItemName?: string;
   SKU?: string;
   Category?: string;
@@ -70,10 +76,18 @@ export async function POST(request: Request) {
     const errors: string[] = [];
 
     for (const row of parsed.data) {
-      if (!row.SKU || !row.ItemName) {
-        errors.push(`Skipped row: missing SKU or ItemName`);
+      // Support both new format (Item No., Item Description, etc.) and legacy format (SKU, ItemName, etc.)
+      const sku = row["Item No."]?.trim() || row.SKU?.trim();
+      const itemName = row["Item Description"]?.trim() || row.ItemName?.trim();
+
+      if (!sku || !itemName) {
+        errors.push(`Skipped row: missing SKU/Item No. or ItemName/Item Description`);
         continue;
       }
+
+      const inStock = row["In Stock"] !== undefined
+        ? parseFloat(row["In Stock"]) || 0
+        : null;
 
       const customerGroups = row.CustomerGroups
         ? row.CustomerGroups.split("|")
@@ -82,15 +96,15 @@ export async function POST(request: Request) {
         : [];
 
       const productData = {
-        item_name: row.ItemName.trim(),
-        sku: row.SKU.trim(),
-        category: row.Category?.trim() || "General",
+        item_name: itemName,
+        sku: sku,
+        category: row["Item Group"]?.trim() || row.Category?.trim() || "General",
         price: parseFloat(row.Price || "0") || 0,
         image_url: row.ImageURL?.trim() || null,
         description: row.Description?.trim() || null,
         customer_groups: customerGroups,
         unit_of_measure: row.UnitOfMeasure?.trim() || "EA",
-        is_active: true,
+        is_active: inStock !== null ? inStock > 0 : true,
         updated_at: new Date().toISOString(),
       };
 

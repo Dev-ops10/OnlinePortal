@@ -1,11 +1,11 @@
-ItemName,SKU,Category,Price,ImageURL,Description,CustomerGroups,UnitOfMeasure
-Commercial Gas Range - 6 Burner,EQ-1001,Cooking Equipment,2849.99,,Heavy-duty 6-burner gas range with oven,Chain A|Independent B,EA
-Convection Oven - Full Size,EQ-1002,Cooking Equipment,4299.00,,Full-size electric convection oven,Chain A,EA
-Commercial Fryer - 40lb,EQ-1003,Cooking Equipment,1599.00,,Floor-standing 40lb capacity gas fryer,Chain A|Independent B,EA
-Reach-In Refrigerator - 2 Door,RF-2001,Refrigeration,3199.00,,Two-door stainless steel reach-in refrigerator,Chain A|Independent B,EA
-Sheet Pan - Full Size 18x26,SW-3001,Smallwares,12.99,,Aluminum full-size sheet pan,Chain A|Independent B,EA
-Hotel Pan 1/6 Size - 6 Deep,SW-3002,Smallwares,8.49,,Stainless steel 1/6 size hotel pan,Chain A|Independent B,EA
-Chef Knife - 10 German Steel,SW-3003,Smallwares,89.99,,Professional 10-inch chef knife,Chain A|Independent B,EA
-Tongs - 12 Scalloped,SW-3005,Smallwares,6.99,,Heavy-duty stainless steel utility tongs,Chain A|Independent B,DZ
-Wire Shelving Unit - 48x18x72,ST-4001,Storage,189.00,,4-tier chrome wire shelving unit,Chain A|Independent B,EA
-Disposable Gloves - Nitrile L,DS-6001,Disposables,29.99,,Large nitrile disposable gloves - 1000/case,Chain A|Independent B,CS
+Item No.,Item Description,In Stock,Item Group
+EQ-1001,Commercial Gas Range - 6 Burner,15,Cooking Equipment
+EQ-1002,Convection Oven - Full Size,8,Cooking Equipment
+EQ-1003,Commercial Fryer - 40lb,12,Cooking Equipment
+RF-2001,Reach-In Refrigerator - 2 Door,5,Refrigeration
+SW-3001,Sheet Pan - Full Size 18x26,200,Smallwares
+SW-3002,Hotel Pan 1/6 Size - 6 Deep,150,Smallwares
+SW-3003,Chef Knife - 10 German Steel,45,Smallwares
+SW-3005,Tongs - 12 Scalloped,300,Smallwares
+ST-4001,Wire Shelving Unit - 48x18x72,20,Storage
+DS-6001,Disposable Gloves - Nitrile L,500,Disposables
