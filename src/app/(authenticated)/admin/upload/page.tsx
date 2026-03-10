@@ -7,6 +7,12 @@ import Papa from "papaparse";
 import type { Profile } from "@/types/database";
 
 interface CSVRow {
+  // New format columns
+  "Item No."?: string;
+  "Item Description"?: string;
+  "In Stock"?: string;
+  "Item Group"?: string;
+  // Legacy format columns
   ItemName?: string;
   SKU?: string;
   Category?: string;
@@ -133,20 +139,32 @@ export default function AdminUploadPage() {
       {/* CSV Format Guide */}
       <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6">
         <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-400">
-          Required CSV Format
+          Accepted CSV Formats
         </h3>
-        <div className="overflow-x-auto">
-          <code className="block whitespace-nowrap rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
-            ItemName,SKU,Category,Price,ImageURL,Description,CustomerGroups,UnitOfMeasure
-          </code>
+        <div className="space-y-2">
+          <div>
+            <p className="mb-1 text-xs font-semibold text-gray-500">SAP B1 Format (recommended):</p>
+            <div className="overflow-x-auto">
+              <code className="block whitespace-nowrap rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
+                Item No.,Item Description,In Stock,Item Group
+              </code>
+            </div>
+          </div>
+          <div>
+            <p className="mb-1 text-xs font-semibold text-gray-500">Legacy Format:</p>
+            <div className="overflow-x-auto">
+              <code className="block whitespace-nowrap rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
+                ItemName,SKU,Category,Price,ImageURL,Description,CustomerGroups,UnitOfMeasure
+              </code>
+            </div>
+          </div>
         </div>
         <p className="mt-3 text-xs text-gray-400">
-          <strong>CustomerGroups:</strong> Pipe-separated values, e.g.{" "}
-          <code className="rounded bg-gray-100 px-1">Chain A|Independent B</code>.
-          Leave empty for all groups.
+          <strong>Item No. / SKU</strong> is the unique key used for upsert (update or insert).
           <br />
-          <strong>SKU</strong> is the unique key used for upsert (update or
-          insert).
+          <strong>In Stock:</strong> Numeric quantity. Products with 0 stock are marked inactive.
+          <br />
+          <strong>Optional columns:</strong> Price (defaults to $0), CustomerGroups (pipe-separated, defaults to all groups), UnitOfMeasure (defaults to EA).
         </p>
       </div>
 
@@ -206,37 +224,33 @@ export default function AdminUploadPage() {
                 <thead>
                   <tr className="bg-gray-50">
                     <th className="px-3 py-2 text-left font-semibold text-gray-500">
-                      Item Name
+                      Item No. / SKU
                     </th>
                     <th className="px-3 py-2 text-left font-semibold text-gray-500">
-                      SKU
+                      Item Description
                     </th>
                     <th className="px-3 py-2 text-left font-semibold text-gray-500">
-                      Category
+                      Category / Item Group
                     </th>
                     <th className="px-3 py-2 text-right font-semibold text-gray-500">
-                      Price
-                    </th>
-                    <th className="px-3 py-2 text-left font-semibold text-gray-500">
-                      Groups
+                      In Stock / Price
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {preview.map((row, i) => (
                     <tr key={i}>
-                      <td className="px-3 py-1.5 text-primary">
-                        {row.ItemName}
-                      </td>
-                      <td className="px-3 py-1.5 text-gray-500">{row.SKU}</td>
                       <td className="px-3 py-1.5 text-gray-500">
-                        {row.Category}
+                        {row["Item No."] || row.SKU}
+                      </td>
+                      <td className="px-3 py-1.5 text-primary">
+                        {row["Item Description"] || row.ItemName}
+                      </td>
+                      <td className="px-3 py-1.5 text-gray-500">
+                        {row["Item Group"] || row.Category}
                       </td>
                       <td className="px-3 py-1.5 text-right text-gray-500">
-                        {row.Price}
-                      </td>
-                      <td className="px-3 py-1.5 text-gray-500">
-                        {row.CustomerGroups}
+                        {row["In Stock"] ?? row.Price}
                       </td>
                     </tr>
                   ))}
