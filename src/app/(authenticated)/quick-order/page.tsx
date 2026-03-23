@@ -20,7 +20,6 @@ export default function QuickOrderPage() {
         .from("products")
         .select("*")
         .eq("is_active", true)
-        .order("category")
         .order("item_name");
 
       if (data) setProducts(data as Product[]);
