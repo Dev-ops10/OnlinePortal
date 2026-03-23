@@ -21,26 +21,31 @@ export default function CatalogPage() {
 
       // Fetch profile for contextual empty state messages
       const { data: { user } } = await supabase.auth.getUser();
+      console.log("Auth user:", user?.id, user?.email);
       if (user) {
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", user.id)
           .single();
+        console.log("Profile:", profileData, "Profile error:", profileError);
         if (profileData) setProfile(profileData as Profile);
       }
 
       // RLS automatically filters by customer group
-      const { data, error } = await supabase
+      const { data, error, status, statusText } = await supabase
         .from("products")
         .select("*")
         .eq("is_active", true)
         .order("category")
         .order("item_name");
 
+      console.log("Products query status:", status, statusText, "data:", data?.length, "error:", JSON.stringify(error));
       if (error) {
-        console.error("Failed to fetch products:", error);
-        setFetchError(error.message);
+        const errorMsg = error.message || error.code || "Unknown error";
+        const errorDetail = error.details || error.hint || "";
+        console.error("Failed to fetch products:", errorMsg, errorDetail, JSON.stringify(error));
+        setFetchError(errorMsg + (errorDetail ? ` (${errorDetail})` : ""));
       } else if (data) {
         setProducts(data as Product[]);
       }
