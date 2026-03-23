@@ -1,20 +1,35 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import ProductCard from "@/components/ProductCard";
-import { Search, SlidersHorizontal } from "lucide-react";
-import type { Product } from "@/types/database";
+import { Search, SlidersHorizontal, AlertTriangle, Shield, Upload } from "lucide-react";
+import type { Product, Profile } from "@/types/database";
 
 export default function CatalogPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     async function fetchProducts() {
       const supabase = createClient();
+
+      // Fetch profile for contextual empty state messages
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+        if (profileData) setProfile(profileData as Profile);
+      }
+
       // RLS automatically filters by customer group
       const { data, error } = await supabase
         .from("products")
@@ -23,7 +38,10 @@ export default function CatalogPage() {
         .order("category")
         .order("item_name");
 
-      if (!error && data) {
+      if (error) {
+        console.error("Failed to fetch products:", error);
+        setFetchError(error.message);
+      } else if (data) {
         setProducts(data as Product[]);
       }
       setLoading(false);
@@ -94,7 +112,34 @@ export default function CatalogPage() {
       </div>
 
       {/* Product Grid */}
-      {filtered.length === 0 ? (
+      {fetchError ? (
+        <div className="flex min-h-[40vh] flex-col items-center justify-center text-gray-400">
+          <AlertTriangle className="mb-3 h-12 w-12 text-red-400" />
+          <p className="text-lg font-medium text-red-600">Failed to load products</p>
+          <p className="mt-1 text-sm text-red-500">{fetchError}</p>
+        </div>
+      ) : filtered.length === 0 && products.length === 0 ? (
+        <div className="flex min-h-[40vh] flex-col items-center justify-center text-gray-400">
+          <Search className="mb-3 h-12 w-12" />
+          <p className="text-lg font-medium">No products available</p>
+          {profile?.role === "admin" ? (
+            <div className="mt-2 text-center text-sm">
+              <p>No products have been uploaded yet.</p>
+              <Link href="/admin/upload" className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-accent-hover">
+                <Upload className="h-4 w-4" />
+                Upload Products
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-2 text-center text-sm">
+              <p>No products match your customer group.</p>
+              <p className="mt-1 text-xs text-gray-300">
+                If you are the first user, <Link href="/admin/setup" className="text-accent underline hover:text-accent-hover">activate admin access</Link> to get started.
+              </p>
+            </div>
+          )}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="flex min-h-[40vh] flex-col items-center justify-center text-gray-400">
           <Search className="mb-3 h-12 w-12" />
           <p className="text-lg font-medium">No products found</p>

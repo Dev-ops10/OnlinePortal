@@ -23,6 +23,10 @@ export default function AdminSetupPage() {
         setResult({ error: data.error || "Setup failed" });
       } else {
         setResult({ success: true, message: data.message });
+        // Full page reload to refresh Navbar with admin role
+        setTimeout(() => {
+          window.location.href = "/catalog";
+        }, 1500);
       }
     } catch {
       setResult({ error: "Network error. Please try again." });
@@ -58,7 +62,7 @@ export default function AdminSetupPage() {
         {result?.success && (
           <div className="mt-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
             <Check className="h-4 w-4 flex-shrink-0" />
-            <span>{result.message} Refresh the page to access admin features.</span>
+            <span>{result.message} Redirecting to catalog...</span>
           </div>
         )}
 
