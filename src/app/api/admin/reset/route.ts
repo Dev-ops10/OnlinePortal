@@ -7,7 +7,7 @@ export async function POST() {
 
     const { error } = await serviceClient
       .from("profiles")
-      .update({ role: "customer" })
+      .update({ role: "user" })
       .eq("role", "admin");
 
     if (error) {
