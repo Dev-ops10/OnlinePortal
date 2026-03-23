@@ -47,15 +47,8 @@ export default function ProductCard({ product }: { product: Product }) {
           {product.item_name}
         </h3>
         <div className="mt-auto pt-3">
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="text-xl font-bold text-primary">
-                ${product.price.toFixed(2)}
-              </p>
-              <p className="text-xs text-gray-400">per {product.unit_of_measure}</p>
-            </div>
-          </div>
-          <div className="mt-3 flex items-center gap-2">
+          <p className="mb-2 text-xs text-gray-400">Unit: {product.unit_of_measure}</p>
+          <div className="flex items-center gap-2">
             <input
               type="number"
               min={1}

@@ -13,9 +13,7 @@ export interface Product {
   item_name: string;
   sku: string;
   item_group: string;
-  price: number;
   image_url: string | null;
-  description: string | null;
   customer_groups: string[];
   unit_of_measure: string;
   is_active: boolean;

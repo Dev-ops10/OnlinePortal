@@ -126,9 +126,6 @@ export default function QuickOrderPage() {
                 <th className="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 md:table-cell">
                   Category
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
-                  Price
-                </th>
                 <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
                   Qty
                 </th>
@@ -157,12 +154,6 @@ export default function QuickOrderPage() {
                   <td className="hidden px-4 py-3 md:table-cell">
                     <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
                       {product.item_group}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm font-semibold text-primary">
-                    ${product.price.toFixed(2)}
-                    <span className="text-xs font-normal text-gray-400">
-                      /{product.unit_of_measure}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">

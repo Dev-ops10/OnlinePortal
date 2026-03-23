@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { getCart, getCartTotal, clearCart } from "@/lib/cart";
+import { getCart, clearCart } from "@/lib/cart";
 import { CheckCircle, Loader2 } from "lucide-react";
 import type { CartItem, Profile } from "@/types/database";
 
@@ -51,7 +51,7 @@ export default function CheckoutPage() {
             sku: item.product.sku,
             item_name: item.product.item_name,
             quantity: item.quantity,
-            unit_price: item.product.price,
+            unit_price: 0,
           })),
           notes,
         }),
@@ -73,9 +73,7 @@ export default function CheckoutPage() {
     }
   }
 
-  const subtotal = getCartTotal(cart);
-  const tax = subtotal * 0.0;
-  const total = subtotal + tax;
+  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   // Order confirmed
   if (orderNumber) {
@@ -155,15 +153,14 @@ export default function CheckoutPage() {
                     {item.product.item_name}
                   </div>
                   <div className="text-xs text-gray-400">
-                    {item.product.sku} &middot; $
-                    {item.product.price.toFixed(2)}/{item.product.unit_of_measure}
+                    {item.product.sku} &middot; {item.product.unit_of_measure}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-center text-sm font-medium">
                   {item.quantity}
                 </td>
                 <td className="px-4 py-3 text-right text-sm font-bold">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  {item.quantity} {item.product.unit_of_measure}
                 </td>
               </tr>
             ))}
@@ -189,16 +186,12 @@ export default function CheckoutPage() {
       <div className="rounded-xl border border-gray-200 bg-white p-6">
         <div className="mb-4 space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">Subtotal</span>
-            <span className="font-medium">${subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-500">Tax</span>
-            <span className="font-medium">${tax.toFixed(2)}</span>
+            <span className="text-gray-500">Items</span>
+            <span className="font-medium">{cart.length}</span>
           </div>
           <div className="flex justify-between border-t border-gray-100 pt-2 text-lg font-bold text-primary">
-            <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>Total Quantity</span>
+            <span>{itemCount}</span>
           </div>
         </div>
 

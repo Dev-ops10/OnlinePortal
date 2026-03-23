@@ -52,10 +52,7 @@ export function clearCart(): void {
 }
 
 export function getCartTotal(cart: CartItem[]): number {
-  return cart.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
+  return cart.reduce((sum, item) => sum + item.quantity, 0);
 }
 
 export function getCartItemCount(cart: CartItem[]): number {
