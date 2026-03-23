@@ -12,10 +12,8 @@ export interface Product {
   id: string;
   item_name: string;
   sku: string;
-  category: string;
-  price: number;
+  item_group: string;
   image_url: string | null;
-  description: string | null;
   customer_groups: string[];
   unit_of_measure: string;
   is_active: boolean;

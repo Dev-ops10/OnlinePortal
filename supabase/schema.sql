@@ -33,14 +33,23 @@ CREATE POLICY "Users can update own profile"
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+-- Helper function to check admin (SECURITY DEFINER bypasses RLS to avoid recursion)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
+
+-- Users can view their own profile
+CREATE POLICY "Users can view own profile"
+  ON public.profiles FOR SELECT
+  USING (auth.uid() = id);
+
 -- Admins can view all profiles
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
+  USING (public.is_admin());
 
 -- Service role can insert profiles (for signup trigger)
 CREATE POLICY "Service role can insert profiles"
@@ -55,10 +64,8 @@ CREATE TABLE IF NOT EXISTS public.products (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   item_name TEXT NOT NULL,
   sku TEXT NOT NULL UNIQUE,
-  category TEXT NOT NULL DEFAULT 'General',
-  price NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  item_group TEXT NOT NULL DEFAULT 'General',
   image_url TEXT,
-  description TEXT,
   customer_groups TEXT[] NOT NULL DEFAULT '{}',
   unit_of_measure TEXT NOT NULL DEFAULT 'EA',
   is_active BOOLEAN NOT NULL DEFAULT true,
@@ -75,7 +82,7 @@ CREATE POLICY "Users can view products for their group"
     is_active = true
     AND (
       -- Product has no group restriction (available to all)
-      customer_groups = '{}'
+      customer_groups = '{}'::text[]
       -- Or user's group is in the product's groups
       OR EXISTS (
         SELECT 1 FROM public.profiles
@@ -83,23 +90,17 @@ CREATE POLICY "Users can view products for their group"
         AND customer_group = ANY(products.customer_groups)
       )
       -- Admins see everything
-      OR EXISTS (
-        SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
-      )
+      OR public.is_admin()
     )
   );
 
 -- Only admins/service role can modify products
 CREATE POLICY "Admins can manage products"
   ON public.products FOR ALL
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
+  USING (public.is_admin());
 
 CREATE INDEX idx_products_sku ON public.products(sku);
-CREATE INDEX idx_products_category ON public.products(category);
+CREATE INDEX idx_products_item_group ON public.products(item_group);
 CREATE INDEX idx_products_customer_groups ON public.products USING GIN(customer_groups);
 
 -- ============================================================
@@ -234,3 +235,42 @@ BEGIN
   RETURN 'SO-' || LPAD(nextval('order_number_seq')::TEXT, 6, '0');
 END;
 $$ LANGUAGE plpgsql;
+
+-- ============================================================
+-- STORAGE: Product images bucket
+-- ============================================================
+-- Run this in your Supabase SQL Editor or Dashboard:
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('product-images', 'product-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Admins can upload product images"
+  ON storage.objects FOR INSERT
+  WITH CHECK (
+    bucket_id = 'product-images'
+    AND EXISTS (
+      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins can update product images"
+  ON storage.objects FOR UPDATE
+  USING (
+    bucket_id = 'product-images'
+    AND EXISTS (
+      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins can delete product images"
+  ON storage.objects FOR DELETE
+  USING (
+    bucket_id = 'product-images'
+    AND EXISTS (
+      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Anyone can view product images"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'product-images');

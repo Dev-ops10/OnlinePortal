@@ -6,7 +6,6 @@ import {
   getCart,
   updateCartQuantity,
   removeFromCart,
-  getCartTotal,
   clearCart,
 } from "@/lib/cart";
 import { Trash2, Minus, Plus, ShoppingCart, ArrowRight } from "lucide-react";
@@ -41,9 +40,7 @@ export default function CartPage() {
     setCart([]);
   }
 
-  const subtotal = getCartTotal(cart);
-  const tax = subtotal * 0.0; // Tax configurable
-  const total = subtotal + tax;
+  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   if (cart.length === 0) {
     return (
@@ -97,9 +94,7 @@ export default function CartPage() {
                       {item.product.item_name}
                     </h3>
                     <p className="text-xs text-gray-400">
-                      {item.product.sku} &middot; $
-                      {item.product.price.toFixed(2)}/
-                      {item.product.unit_of_measure}
+                      {item.product.sku} &middot; {item.product.unit_of_measure}
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
@@ -118,11 +113,6 @@ export default function CartPage() {
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
-                  </div>
-                  <div className="w-24 text-right">
-                    <p className="text-sm font-bold text-primary">
-                      ${(item.product.price * item.quantity).toFixed(2)}
-                    </p>
                   </div>
                   <button
                     onClick={() => handleRemove(item.product.id)}
@@ -144,17 +134,13 @@ export default function CartPage() {
             </h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-500">Subtotal</span>
-                <span className="font-medium">${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Tax</span>
-                <span className="font-medium">${tax.toFixed(2)}</span>
+                <span className="text-gray-500">Items</span>
+                <span className="font-medium">{cart.length}</span>
               </div>
               <div className="border-t border-gray-100 pt-3">
                 <div className="flex justify-between text-lg font-bold text-primary">
-                  <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>Total Quantity</span>
+                  <span>{itemCount}</span>
                 </div>
               </div>
             </div>
