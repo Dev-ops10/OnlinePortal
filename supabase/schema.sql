@@ -33,6 +33,14 @@ CREATE POLICY "Users can update own profile"
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+-- Helper function to check admin (SECURITY DEFINER bypasses RLS to avoid recursion)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
+
 -- Users can view their own profile
 CREATE POLICY "Users can view own profile"
   ON public.profiles FOR SELECT
@@ -41,11 +49,7 @@ CREATE POLICY "Users can view own profile"
 -- Admins can view all profiles
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
+  USING (public.is_admin());
 
 -- Service role can insert profiles (for signup trigger)
 CREATE POLICY "Service role can insert profiles"
@@ -88,20 +92,14 @@ CREATE POLICY "Users can view products for their group"
         AND customer_group = ANY(products.customer_groups)
       )
       -- Admins see everything
-      OR EXISTS (
-        SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
-      )
+      OR public.is_admin()
     )
   );
 
 -- Only admins/service role can modify products
 CREATE POLICY "Admins can manage products"
   ON public.products FOR ALL
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
+  USING (public.is_admin());
 
 CREATE INDEX idx_products_sku ON public.products(sku);
 CREATE INDEX idx_products_category ON public.products(category);

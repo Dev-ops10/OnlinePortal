@@ -37,7 +37,6 @@ export default function CatalogPage() {
         .from("products")
         .select("*")
         .eq("is_active", true)
-        .order("category")
         .order("item_name");
 
       console.log("Products query status:", status, statusText, "data:", data?.length, "error:", JSON.stringify(error));
