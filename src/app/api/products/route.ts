@@ -3,20 +3,14 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import Papa from "papaparse";
 
 interface CSVRow {
-  // New format columns
   "Item No."?: string;
   "Item Description"?: string;
-  "In Stock"?: string;
+  "In-stock"?: string;
+  image_url?: string;
   "Item Group"?: string;
-  // Legacy format columns
-  ItemName?: string;
-  SKU?: string;
-  Category?: string;
-  Price?: string;
-  ImageURL?: string;
-  Description?: string;
-  CustomerGroups?: string;
-  UnitOfMeasure?: string;
+  customer_groups?: string;
+  unit_of_measure?: string;
+  is_active?: string;
 }
 
 export async function POST(request: Request) {
@@ -76,35 +70,42 @@ export async function POST(request: Request) {
     const errors: string[] = [];
 
     for (const row of parsed.data) {
-      // Support both new format (Item No., Item Description, etc.) and legacy format (SKU, ItemName, etc.)
-      const sku = row["Item No."]?.trim() || row.SKU?.trim();
-      const itemName = row["Item Description"]?.trim() || row.ItemName?.trim();
+      const sku = row["Item No."]?.trim();
+      const itemName = row["Item Description"]?.trim();
 
       if (!sku || !itemName) {
-        errors.push(`Skipped row: missing SKU/Item No. or ItemName/Item Description`);
+        errors.push(`Skipped row: missing Item No. or Item Description`);
         continue;
       }
 
-      const inStock = row["In Stock"] !== undefined
-        ? parseFloat(row["In Stock"]) || 0
+      const inStock = row["In-stock"] !== undefined
+        ? parseFloat(row["In-stock"]) || 0
         : null;
 
-      const customerGroups = row.CustomerGroups
-        ? row.CustomerGroups.split("|")
+      const customerGroups = row.customer_groups
+        ? row.customer_groups.split("|")
             .map((g) => g.trim())
             .filter(Boolean)
         : [];
 
+      // is_active: explicit column wins, then fall back to in-stock > 0
+      let isActive = true;
+      if (row.is_active !== undefined) {
+        isActive = row.is_active.toLowerCase() === "true" || row.is_active === "1";
+      } else if (inStock !== null) {
+        isActive = inStock > 0;
+      }
+
       const productData = {
         item_name: itemName,
         sku: sku,
-        category: row["Item Group"]?.trim() || row.Category?.trim() || "General",
-        price: parseFloat(row.Price || "0") || 0,
-        image_url: row.ImageURL?.trim() || null,
-        description: row.Description?.trim() || null,
+        category: row["Item Group"]?.trim() || "General",
+        price: 0,
+        image_url: row.image_url?.trim() || null,
+        description: null,
         customer_groups: customerGroups,
-        unit_of_measure: row.UnitOfMeasure?.trim() || "EA",
-        is_active: inStock !== null ? inStock > 0 : true,
+        unit_of_measure: row.unit_of_measure?.trim() || "EA",
+        is_active: isActive,
         updated_at: new Date().toISOString(),
       };
 
