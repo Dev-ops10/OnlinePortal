@@ -49,7 +49,7 @@ export default function CatalogPage() {
   }, []);
 
   const categories = useMemo(() => {
-    const cats = new Set(products.map((p) => p.category));
+    const cats = new Set(products.map((p) => p.item_group));
     return ["All", ...Array.from(cats).sort()];
   }, [products]);
 
@@ -59,7 +59,7 @@ export default function CatalogPage() {
         !search ||
         p.item_name.toLowerCase().includes(search.toLowerCase()) ||
         p.sku.toLowerCase().includes(search.toLowerCase());
-      const matchesCategory = category === "All" || p.category === category;
+      const matchesCategory = category === "All" || p.item_group === category;
       return matchesSearch && matchesCategory;
     });
   }, [products, search, category]);

@@ -36,7 +36,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         )}
         <div className="absolute left-2 top-2 rounded-md bg-primary/90 px-2 py-0.5 text-xs font-medium text-white">
-          {product.category}
+          {product.item_group}
         </div>
       </div>
 

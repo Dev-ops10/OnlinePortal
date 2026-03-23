@@ -12,7 +12,7 @@ export interface Product {
   id: string;
   item_name: string;
   sku: string;
-  category: string;
+  item_group: string;
   price: number;
   image_url: string | null;
   description: string | null;

@@ -99,7 +99,7 @@ export async function POST(request: Request) {
       const productData = {
         item_name: itemName,
         sku: sku,
-        category: row["Item Group"]?.trim() || "General",
+        item_group: row["Item Group"]?.trim() || "General",
         price: 0,
         image_url: row.image_url?.trim() || null,
         description: null,

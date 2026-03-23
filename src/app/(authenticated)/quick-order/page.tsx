@@ -35,7 +35,7 @@ export default function QuickOrderPage() {
       (p) =>
         p.item_name.toLowerCase().includes(q) ||
         p.sku.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q)
+        p.item_group.toLowerCase().includes(q)
     );
   }, [products, search]);
 
@@ -156,7 +156,7 @@ export default function QuickOrderPage() {
                   </td>
                   <td className="hidden px-4 py-3 md:table-cell">
                     <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                      {product.category}
+                      {product.item_group}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right text-sm font-semibold text-primary">

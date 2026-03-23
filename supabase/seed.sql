@@ -3,7 +3,7 @@
 -- Creates sample products for testing
 -- ============================================================
 
-INSERT INTO public.products (item_name, sku, category, price, customer_groups, unit_of_measure, description) VALUES
+INSERT INTO public.products (item_name, sku, item_group, price, customer_groups, unit_of_measure, description) VALUES
   ('Commercial Gas Range - 6 Burner', 'EQ-1001', 'Cooking Equipment', 2849.99, ARRAY['Chain A', 'Independent B'], 'EA', 'Heavy-duty 6-burner gas range with oven'),
   ('Convection Oven - Full Size', 'EQ-1002', 'Cooking Equipment', 4299.00, ARRAY['Chain A'], 'EA', 'Full-size electric convection oven'),
   ('Commercial Fryer - 40lb', 'EQ-1003', 'Cooking Equipment', 1599.00, ARRAY['Chain A', 'Independent B'], 'EA', 'Floor-standing 40lb capacity gas fryer'),
@@ -26,7 +26,7 @@ INSERT INTO public.products (item_name, sku, category, price, customer_groups, u
   ('To-Go Container - 9x9 3-Comp', 'DS-6003', 'Disposables', 64.99, ARRAY['Independent B'], 'CS', 'Hinged foam container 3-compartment - 200/case')
 ON CONFLICT (sku) DO UPDATE SET
   item_name = EXCLUDED.item_name,
-  category = EXCLUDED.category,
+  item_group = EXCLUDED.item_group,
   price = EXCLUDED.price,
   customer_groups = EXCLUDED.customer_groups,
   unit_of_measure = EXCLUDED.unit_of_measure,

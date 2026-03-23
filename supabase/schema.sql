@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS public.products (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   item_name TEXT NOT NULL,
   sku TEXT NOT NULL UNIQUE,
-  category TEXT NOT NULL DEFAULT 'General',
+  item_group TEXT NOT NULL DEFAULT 'General',
   price NUMERIC(12, 2) NOT NULL DEFAULT 0,
   image_url TEXT,
   description TEXT,
@@ -102,7 +102,7 @@ CREATE POLICY "Admins can manage products"
   USING (public.is_admin());
 
 CREATE INDEX idx_products_sku ON public.products(sku);
-CREATE INDEX idx_products_category ON public.products(category);
+CREATE INDEX idx_products_item_group ON public.products(item_group);
 CREATE INDEX idx_products_customer_groups ON public.products USING GIN(customer_groups);
 
 -- ============================================================
