@@ -30,7 +30,9 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isLoginPage = request.nextUrl.pathname === "/login";
-  const isPublicPath = request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/";
+  const isSetupPage = request.nextUrl.pathname === "/admin/setup";
+  const isSetupApi = request.nextUrl.pathname.startsWith("/api/admin/setup");
+  const isPublicPath = request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/" || isSetupPage || isSetupApi;
   const isApiAuth = request.nextUrl.pathname.startsWith("/api/auth");
 
   if (!user && !isPublicPath && !isApiAuth) {
