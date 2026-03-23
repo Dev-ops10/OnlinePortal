@@ -80,7 +80,7 @@ CREATE POLICY "Users can view products for their group"
     is_active = true
     AND (
       -- Product has no group restriction (available to all)
-      cardinality(customer_groups) = 0
+      customer_groups = '{}'::text[]
       -- Or user's group is in the product's groups
       OR EXISTS (
         SELECT 1 FROM public.profiles
